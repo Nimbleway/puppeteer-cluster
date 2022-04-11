@@ -489,9 +489,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     public requestRestart() {
-        this.browser?.requestRestart();
+        return Promise.all(this.workers.map(worker=>worker.browser.repair()))
     }
-
 
     private monitor(): void {
         if (!this.display) {
