@@ -12,6 +12,7 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
     close(): Promise<void>;
     protected abstract createResources(): Promise<ResourceData>;
     protected abstract freeResources(resources: ResourceData): Promise<void>;
+    requestRestart(): void;
     workerInstance(): Promise<{
         jobInstance: () => Promise<{
             resources: ResourceData;

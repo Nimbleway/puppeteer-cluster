@@ -77,6 +77,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     idle(): Promise<void>;
     waitForOne(): Promise<JobData>;
     close(): Promise<void>;
+    requestRestart(): void;
     private monitor;
 }
 export {};
