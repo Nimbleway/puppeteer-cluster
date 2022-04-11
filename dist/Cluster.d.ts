@@ -47,6 +47,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private idleResolvers;
     private waitForOneResolvers;
     private browser;
+    private repairRequested;
+    private isRepairing;
     private isClosed;
     private startTime;
     private nextWorkerId;
@@ -77,7 +79,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     idle(): Promise<void>;
     waitForOne(): Promise<JobData>;
     close(): Promise<void>;
-    requestRestart(): Promise<void[]>;
+    requestRestart(): void;
+    restartWorkers(): Promise<void>;
     private monitor;
 }
 export {};

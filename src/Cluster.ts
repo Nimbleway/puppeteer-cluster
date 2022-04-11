@@ -101,6 +101,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private idleResolvers: (() => void)[] = [];
     private waitForOneResolvers: ((data:JobData) => void)[] = [];
     private browser: ConcurrencyImplementation | null = null;
+    private repairRequested = false;
+    private isRepairing = false;
 
     private isClosed = false;
     private startTime = Date.now();
@@ -132,6 +134,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             ...options,
         };
 
+        
         if (this.options.monitor) {
             this.monitoringInterval = setInterval(
                 () => this.monitor(),
@@ -261,6 +264,15 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     private async doWork() {
+        if (this.isRepairing) return;
+
+        if (this.repairRequested) {
+            if (this.workersBusy.length === 0) {
+                this.restartWorkers();
+            }
+            return;
+        }
+
         if (this.jobQueue.size() === 0) { // no jobs available
             if (this.workersBusy.length === 0) {
                 this.idleResolvers.forEach(resolve => resolve());
@@ -489,7 +501,18 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     public requestRestart() {
-        return Promise.all(this.workers.map(worker=>worker.browser.repair()))
+        this.repairRequested = true;
+        this.isRepairing = false;
+
+    }
+
+    public async restartWorkers() {
+        if (!this.isRepairing) {
+            this.isRepairing = true;
+            await Promise.all(this.workers.map(worker=>worker.browser.repair()));
+            this.repairRequested = false;
+            this.isRepairing = false;
+        }
     }
 
     private monitor(): void {
