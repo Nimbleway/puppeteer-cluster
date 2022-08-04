@@ -1,5 +1,6 @@
 import * as puppeteer from 'puppeteer';
 import ConcurrencyImplementation, { ResourceData } from './ConcurrencyImplementation';
+import Job, { JobData, ReturnData } from '../Job';
 export default abstract class SingleBrowserImplementation extends ConcurrencyImplementation {
     protected browser: puppeteer.Browser | null;
     private repairing;
@@ -14,7 +15,7 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
     protected abstract freeResources(resources: ResourceData): Promise<void>;
     requestRestart(): void;
     workerInstance(): Promise<{
-        jobInstance: () => Promise<{
+        jobInstance: (job: Job<JobData, ReturnData> | undefined) => Promise<{
             resources: ResourceData;
             close: () => Promise<void>;
         }>;

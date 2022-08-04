@@ -2,6 +2,7 @@ import * as puppeteer from 'puppeteer';
 import ConcurrencyImplementation, {ResourceData} from './ConcurrencyImplementation';
 
 import {debugGenerator, timeoutExecute} from '../util';
+import Job, { JobData, ReturnData } from '../Job';
 
 const debug = debugGenerator('SingleBrowserImpl');
 
@@ -68,7 +69,7 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
         let resources: ResourceData;
 
         return {
-            jobInstance: async () => {
+            jobInstance: async (job: Job<JobData, ReturnData> | undefined) => {
                 if (this.repairRequested) {
                     await this.repair();
                 }

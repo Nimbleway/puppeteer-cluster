@@ -285,8 +285,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             // skip, there are items in the queue but they are all delayed
             return;
         }
-
-        const userbrowser = job.getUserbrowser();
+        
         const url = job.getUrl();
         const domain = job.getDomain();
 

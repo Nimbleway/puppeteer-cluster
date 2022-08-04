@@ -3,6 +3,10 @@ import {TaskFunction} from './Cluster';
 
 export type ExecuteResolve = (value?: any) => void;
 export type ExecuteReject = (reason?: any) => void;
+
+export type JobData = any;
+export type ReturnData = any;
+
 export interface ExecuteCallbacks {
     resolve: (value?: any) => void;
     reject: ExecuteReject;
@@ -27,16 +31,16 @@ export default class Job<JobData, ReturnData> {
         this.executeCallbacks = executeCallbacks;
     }
 
-    public getUserbrowser() {
+    public getProxyURL() {
         if (!this.data) {
             return undefined;
         }
-        if (typeof this.data === 'string') {
+        if (typeof this.data !== 'object') {
             return undefined;
         }
 
-        if (typeof (this.data as any).userbrowser === 'object') {
-            return (this.data as any).userbrowser;
+        if (typeof (this.data as any).proxy === 'string') {
+            return (this.data as any).proxy;
         }
         return undefined;
     }

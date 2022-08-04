@@ -1,4 +1,5 @@
 import * as puppeteer from 'puppeteer';
+import Job from '../../Job';
 
 import {debugGenerator, timeoutExecute} from '../../util';
 import ConcurrencyImplementation, {WorkerInstance} from '../ConcurrencyImplementation';
@@ -7,7 +8,7 @@ const debug = debugGenerator('BrowserConcurrency');
 
 const BROWSER_TIMEOUT = 5000;
 
-export default class Browser extends ConcurrencyImplementation {
+export default class Browser<JobData, ReturnData> extends ConcurrencyImplementation {
     public async init() {}
     public async close() {}
 
@@ -20,9 +21,11 @@ export default class Browser extends ConcurrencyImplementation {
         let context: any; // puppeteer typings are old...
 
         return {
-            jobInstance: async () => {
+            jobInstance: async (job: Job<JobData, ReturnData> | undefined) => {
                 await timeoutExecute(BROWSER_TIMEOUT, (async () => {
-                    context = await chrome.createIncognitoBrowserContext();
+                    context = await chrome.createIncognitoBrowserContext({
+                        proxyServer: job?.getProxyURL()
+                    });
                     page = await context.newPage();
                 })());
 
@@ -44,9 +47,16 @@ export default class Browser extends ConcurrencyImplementation {
 
             repair: async () => {
                 debug('Starting repair');
+                let browserPID: number | undefined;
+
                 try {
+                    browserPID = chrome.process()?.pid;
                     // will probably fail, but just in case the repair was not necessary
                     await chrome.close();
+                } catch (e) {}
+                
+                try {
+                    if(browserPID) process.kill(browserPID);
                 } catch (e) {}
 
                 // just relaunch as there is only one page per browser
