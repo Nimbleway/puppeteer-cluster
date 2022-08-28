@@ -36,6 +36,7 @@ export default class Browser<JobData, ReturnData> extends ConcurrencyImplementat
                     },
 
                     close: async () => {
+                        await timeoutExecute(BROWSER_TIMEOUT, page.close());
                         await timeoutExecute(BROWSER_TIMEOUT, context.close());
                     },
                 };
